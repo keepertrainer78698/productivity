@@ -9,9 +9,11 @@ class UploadFiles:
         if uploadcategory == 'Rechnungen':
             self.kdrive_url = config.kdrive_api + config.invoice_path
             self.airt_url = config.airtable_api + config.invoice_target
+            self.url_link = False
         elif uploadcategory == 'Goalkeeping':
             self.kdrive_url = config.kdrive_api + config.gk_path
             self.airt_url = config.airtable_api + config.gk_target
+            self.url_link = True
         else:
             'Not allowed Parameter, choose from "Rechnungen" or "Goalkeeping"'
 
@@ -53,6 +55,20 @@ class UploadFiles:
                 output = {}
                 output['kdrive_id'] = i['id']
                 output['filename'] = i['name']
+                if self.url_link == True:
+                    file_id = '2520'
+                    url = config.kdrive_api + '/files/' + file_id + '/link'
+                    get_link = requests.get(url=url, headers=self.kdrive_headers)
+                    if get_link.json()['result'] == 'success':
+                        #print('existing link: ' + get_link.json()['data']['url'])
+                        output['kdrive_url'] = get_link.json()['data']['url']
+                    else:
+                        rights = {'right': 'public'}
+                        post_response = requests.post(url=url, headers=self.kdrive_headers, data=json.dumps(rights))
+                        #print('created link: ' + post_response.json()['data']['url'])
+                        output['kdrive_url'] = post_response.json()['data']['url']
+                else:
+                    pass
                 fields = {'fields': output}
                 result.append(fields)
         records = {'records': result}
