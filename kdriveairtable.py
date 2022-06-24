@@ -56,8 +56,7 @@ class UploadFiles:
                 output['kdrive_id'] = i['id']
                 output['filename'] = i['name']
                 if self.url_link == True:
-                    file_id = '2520'
-                    url = config.kdrive_api + '/files/' + file_id + '/link'
+                    url = config.kdrive_api + '/files/' + str(i['id']) + '/link'
                     get_link = requests.get(url=url, headers=self.kdrive_headers)
                     if get_link.json()['result'] == 'success':
                         #print('existing link: ' + get_link.json()['data']['url'])
